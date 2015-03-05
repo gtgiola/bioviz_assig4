@@ -8,97 +8,90 @@
 			<h1>Biovisualization Assignment 4</h1>
 			<h2>Greg Giola</h2>
 		</div>
-			<script>
-				//DATA
-				var seq1 = "MSKVILKIKRLPHAQDLPLPSYATPHSSGLDLRAAIEKPLKIKPFERVLIPTGLILEIPEGYEGQVRPRSGLAWKKGLTVLNAPGTIDADYRGEVKVILVNLGNEEVVIERGERIAQLVIAPVQRVEVVEVEEVSQTQRGEGGFGSTGTK"; //DUT_ACQUAE
-				var seq2 = "MSTKVTVELQRLPHAEGLPLPAYQTAEAAGLDLMAAVPEDAPLTLASGRYALVPTGLAIALPPGHEAQVRPRSGLAAKHGVTVLNSPGTIDADYRGEIKVILINHGAAAFVIKRGERIAQMVIAPVVQAALVPVATLSATDRGAGGFGSTGR"; //DUT_BRAJA
-				//var seq1 = "GAATTCAGTTA"
-				//var seq2 = "GGATCGA"
-				
-				//Setup
-				var svg = d3.select("#assig4").append("svg")
-					.attr("width", 1300)
-					.attr("height", 400)
-					
-				//Algorithm
-				var gap = "-";
-				var matchCar = "|";
-				var scoringMtx = [];
-				var pathMtx = [];
-				var matchScore = 2;
-				var mismatchScore = -1;
-				var gapScore = -2;
-				// Score Matrix
-				for (var i = 0; i <= seq1.length; i++) {
-					var col = [];
-					var pathCol = [];
-					scoringMtx.push(col);
-					pathMtx.push(pathCol);
-					for (var j = 0; j <= seq2.length; j++) {
-						var match = -Infinity, 
-							gap1 = -Infinity,
-							gap2 = -Infinity;
-						// Match/Mismatch/Gap Scores
-						if (i > 0 && j > 0) {
-							match = scoringMtx[i-1][j-1] + (seq1[i-1] == seq2[j-1] ? matchScore : mismatchScore);
-						}
-						if (i > 0) {
-							gap1 = scoringMtx[i-1][j] + gapScore;
-						}
-						if (j > 0) {
-							gap2 = scoringMtx[i][j-1] + gapScore;
-						}
-						if (i == 0 && j == 0) {
-							match = 0;
-						}
-						var best = Math.max(match, gap1, gap2);
-						col.push(best);
-						// Updated path
-						if (best == match && i > 0 && j > 0) {
-							pathCol.push([1,1]);
-						} else if (best == gap2 && j > 0) {
-							pathCol.push([0,1]);
-						} else if (i > 0) {
-							pathCol.push([1,0]);
-						} else {
-							pathCol.push([0,0]);
-						}
+		<script>
+			//Data
+			var seq1 = "MSKVILKIKRLPHAQDLPLPSYATPHSSGLDLRAAIEKPLKIKPFERVLIPTGLILEIPEGYEGQVRPRSGLAWKKGLTVLNAPGTIDADYRGEVKVILVNLGNEEVVIERGERIAQLVIAPVQRVEVVEVEEVSQTQRGEGGFGSTGTK"; //DUT_ACQUAE
+			var seq2 = "MSTKVTVELQRLPHAEGLPLPAYQTAEAAGLDLMAAVPEDAPLTLASGRYALVPTGLAIALPPGHEAQVRPRSGLAAKHGVTVLNSPGTIDADYRGEIKVILINHGAAAFVIKRGERIAQMVIAPVVQAALVPVATLSATDRGAGGFGSTGR"; //DUT_BRAJA
+			//Test Data
+			//var seq1 = "GAATTCAGTTA"
+			//var seq2 = "GGATCGA"
+
+			//Setup
+			var svg = d3.select("#assig4").append("svg")
+				.attr("width", 1300)
+				.attr("height", 400)
+
+			//Algorithm
+			var scoringMtx = [];
+			var pathMtx = [];
+			var matchScore = 2;
+			var mismatchScore = -1;
+			var gapScore = -2;
+			// Score Matrix
+			for (var i = 0; i <= seq1.length; i++) {
+				var col = [];
+				var pathCol = [];
+				scoringMtx.push(col);
+				pathMtx.push(pathCol);
+				for (var j = 0; j <= seq2.length; j++) {
+					var match = -Infinity, 
+						gap1 = -Infinity,
+						gap2 = -Infinity;
+					// Match/Mismatch/Gap Scores
+					if (i > 0 && j > 0) {
+						match = scoringMtx[i-1][j-1] + (seq1[i-1] == seq2[j-1] ? matchScore : mismatchScore);
+					}
+					if (i > 0) {gap1 = scoringMtx[i-1][j] + gapScore;}
+					if (j > 0) {gap2 = scoringMtx[i][j-1] + gapScore;}
+					if (i == 0 && j == 0) {match = 0;}
+					var best = Math.max(match, gap1, gap2);
+					col.push(best);
+					// Updated path
+					if (best == match && i > 0 && j > 0) {
+						pathCol.push([1,1]);
+					} else if (best == gap2 && j > 0) {
+						pathCol.push([0,1]);
+					} else if (i > 0) {
+						pathCol.push([1,0]);
+					} else {
+						pathCol.push([0,0]);
 					}
 				}
-				// Traceback
-				var seq1out = "";
-				var seq2out = "";
-				var seqmatch = "";
-				var i = seq1.length;
-				var j = seq2.length;
-				while (i != 0 || j != 0) {
-					var direction = pathMtx[i][j];
-					seq1out = (direction[0] ? seq1[i-1] : gap) + seq1out;
-					seq2out = (direction[1] ? seq2[j-1] : gap) + seq2out;
-					seqmatch = (direction[0] && direction[1] && seq1[i-1] == seq2[j-1] ? matchCar : " ") + seqmatch;
-					i -= direction[0];
-					j -= direction[1];
-				}
-				svg.append("text")
-					.attr("x", 0)
-					.attr("y", 25)
-					.attr("font-size", "14px")
-					.attr("font-family", "monospace")
-					.text(seq1out);
-				svg.append("text")
-					.attr("x", 0)
-					.attr("y", 50)
-					.attr("fill","blue")
-					.attr("font-size", "14px")
-					.attr("font-family", "monospace")
-					.attr("xml:space", "preserve")
-					.text(seqmatch);
-				svg.append("text")
-					.attr("x", 0)
-					.attr("y", 75)
-					.attr("font-size", "14px")
-					.attr("font-family", "monospace")
-					.text(seq2out);
-			</script>
+			}
+			// Traceback
+			var seq1out = "";
+			var seq2out = "";
+			var seqmatch = "";
+			var i = seq1.length;
+			var j = seq2.length;
+			while (i != 0 || j != 0) {
+				var direction = pathMtx[i][j];
+				seq1out = (direction[0] ? seq1[i-1] : "-") + seq1out;
+				seq2out = (direction[1] ? seq2[j-1] : "-") + seq2out;
+				seqmatch = (direction[0] && direction[1] && seq1[i-1] == seq2[j-1] ? "|" : " ") + seqmatch;
+				i -= direction[0];
+				j -= direction[1];
+			}
+			svg.append("text")
+				.attr("x", 0)
+				.attr("y", 25)
+				.attr("font-size", "14px")
+				.attr("font-family", "monospace")
+				.text(seq1out);
+			svg.append("text")
+				.attr("x", 0)
+				.attr("y", 50)
+				.attr("fill","blue")
+				.attr("font-size", "14px")
+				.attr("font-family", "monospace")
+				.attr("xml:space", "preserve")
+				.text(seqmatch);
+			svg.append("text")
+				.attr("x", 0)
+				.attr("y", 75)
+				.attr("font-size", "14px")
+				.attr("font-family", "monospace")
+				.text(seq2out);
+		</script>
 	</body>
 </html>
