@@ -10,48 +10,50 @@
 		</div>
 			<script>
 				//DATA
-				//var seq1 = "MSKVILKIKRLPHAQDLPLPSYATPHSSGLDLRAAIEKPLKIKPFERVLIPTGLILEIPEGYEGQVRPRSGLAWKKGLTVLNAPGTIDADYRGEVKVILVNLGNEEVVIERGERIAQLVIAPVQRVEVVEVEEVSQTQRGEGGFGSTGTK"; //DUT_ACQUAE
-				//var seq2 = "MSTKVTVELQRLPHAEGLPLPAYQTAEAAGLDLMAAVPEDAPLTLASGRYALVPTGLAIALPPGHEAQVRPRSGLAAKHGVTVLNSPGTIDADYRGEIKVILINHGAAAFVIKRGERIAQMVIAPVVQAALVPVATLSATDRGAGGFGSTGR"; //DUT_BRAJA
-				var seq1 = "GAATTCAGTTA"
-				var seq2 = "GGATCGA"
+				var seq1 = "MSKVILKIKRLPHAQDLPLPSYATPHSSGLDLRAAIEKPLKIKPFERVLIPTGLILEIPEGYEGQVRPRSGLAWKKGLTVLNAPGTIDADYRGEVKVILVNLGNEEVVIERGERIAQLVIAPVQRVEVVEVEEVSQTQRGEGGFGSTGTK"; //DUT_ACQUAE
+				var seq2 = "MSTKVTVELQRLPHAEGLPLPAYQTAEAAGLDLMAAVPEDAPLTLASGRYALVPTGLAIALPPGHEAQVRPRSGLAAKHGVTVLNSPGTIDADYRGEIKVILINHGAAAFVIKRGERIAQMVIAPVVQAALVPVATLSATDRGAGGFGSTGR"; //DUT_BRAJA
+				//var seq1 = "GAATTCAGTTA"
+				//var seq2 = "GGATCGA"
 				
-				var svg = d3.select("body").append("svg")
+				//Setup
+				var svg = d3.select("#assig4").append("svg")
 					.attr("width", 1300)
 					.attr("height", 400)
-				var gapChar = "-";
-				var matchChar = "|";
-				var scoringMatrix = [];
-				var pathMatrix = [];
+					
+				//Algorithm
+				var gap = "-";
+				var matchCar = "|";
+				var scoringMtx = [];
+				var pathMtx = [];
 				var matchScore = 2;
 				var mismatchScore = -1;
 				var gapScore = -2;
-				// calculate the score matrix
+				// Score Matrix
 				for (var i = 0; i <= seq1.length; i++) {
 					var col = [];
 					var pathCol = [];
-					scoringMatrix.push(col);
-					pathMatrix.push(pathCol);
+					scoringMtx.push(col);
+					pathMtx.push(pathCol);
 					for (var j = 0; j <= seq2.length; j++) {
 						var match = -Infinity, 
 							gap1 = -Infinity,
 							gap2 = -Infinity;
-						// match/mismatch scores
+						// Match/Mismatch/Gap Scores
 						if (i > 0 && j > 0) {
-							match = scoringMatrix[i-1][j-1] + (seq1[i-1] == seq2[j-1] ? matchScore : mismatchScore);
+							match = scoringMtx[i-1][j-1] + (seq1[i-1] == seq2[j-1] ? matchScore : mismatchScore);
 						}
-						// gap scores
 						if (i > 0) {
-							gap1 = scoringMatrix[i-1][j] + gapScore;
+							gap1 = scoringMtx[i-1][j] + gapScore;
 						}
 						if (j > 0) {
-							gap2 = scoringMatrix[i][j-1] + gapScore;
+							gap2 = scoringMtx[i][j-1] + gapScore;
 						}
 						if (i == 0 && j == 0) {
 							match = 0;
 						}
 						var best = Math.max(match, gap1, gap2);
 						col.push(best);
-						// update the path that we have taken
+						// Updated path
 						if (best == match && i > 0 && j > 0) {
 							pathCol.push([1,1]);
 						} else if (best == gap2 && j > 0) {
@@ -63,38 +65,38 @@
 						}
 					}
 				}
+				// Traceback
 				var seq1out = "";
 				var seq2out = "";
 				var seqmatch = "";
-				// backtrack to find sequence
 				var i = seq1.length;
 				var j = seq2.length;
-				console.log("score = " + scoringMatrix[i][j]);
 				while (i != 0 || j != 0) {
-					var direction = pathMatrix[i][j];
-					seq1out = (direction[0] ? seq1[i-1] : gapChar) + seq1out;
-					seq2out = (direction[1] ? seq2[j-1] : gapChar) + seq2out;
-					seqmatch = (direction[0] && direction[1] && seq1[i-1] == seq2[j-1] ? matchChar : " ") + seqmatch;
+					var direction = pathMtx[i][j];
+					seq1out = (direction[0] ? seq1[i-1] : gap) + seq1out;
+					seq2out = (direction[1] ? seq2[j-1] : gap) + seq2out;
+					seqmatch = (direction[0] && direction[1] && seq1[i-1] == seq2[j-1] ? matchCar : " ") + seqmatch;
 					i -= direction[0];
 					j -= direction[1];
 				}
 				svg.append("text")
 					.attr("x", 0)
-					.attr("y", 100)
-					.attr("font-size", "15px")
+					.attr("y", 25)
+					.attr("font-size", "14px")
 					.attr("font-family", "monospace")
 					.text(seq1out);
 				svg.append("text")
 					.attr("x", 0)
-					.attr("y", 125)
-					.attr("font-size", "15px")
+					.attr("y", 50)
+					.attr("fill","blue")
+					.attr("font-size", "14px")
 					.attr("font-family", "monospace")
 					.attr("xml:space", "preserve")
 					.text(seqmatch);
 				svg.append("text")
 					.attr("x", 0)
-					.attr("y", 150)
-					.attr("font-size", "15px")
+					.attr("y", 75)
+					.attr("font-size", "14px")
 					.attr("font-family", "monospace")
 					.text(seq2out);
 			</script>
