@@ -2,6 +2,7 @@
 Bioviz Assignment 4 Greg Giola
 
 Algorithm based from http://www.avatar.se/molbioinfo2001/dynprog/dynamic.html
+Algorithm based also from various websites, (could not find them in my history)
 Data from http://web.cs.wpi.edu/~matt/courses/bcb4002/datasets.html
 
 This web page compares 2 protein sequences.
